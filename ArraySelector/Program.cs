@@ -64,6 +64,16 @@ namespace ArraySelector
             count--;
         }
 
+        public void RemoveBack()
+        {
+            DoublyNode<T> current = head;
+            
+            tail = current.Previous;
+            current.Previous.Next = current.Next;
+            
+            count--;
+        }
+
         // удаление
         public bool Remove(T data)
         {
@@ -178,6 +188,8 @@ namespace ArraySelector
 
             linkedList.RemoveFront();
             linkedList.Add("Bob");
+            linkedList.Add("Vova");
+            linkedList.Add("Boba");
 
             Console.WriteLine("--------");
             Console.WriteLine();
@@ -187,36 +199,56 @@ namespace ArraySelector
                 Console.WriteLine(item);
             }
 
-            //int picker = 0;
+            linkedList.RemoveBack();
+            linkedList.AddFirst("Boba");
+            linkedList.AddFirst("Aasdd");
 
-            //for (int i = 0; i < numbers.Length; i++)
-            //{
+            Console.WriteLine("--------");
+            Console.WriteLine();
+
+            foreach (var item in linkedList)
+            {
+                Console.WriteLine(item);
+            }
+            
+
+            // int picker = 0;
+
+            // for (int i = 0; i < numbers.Length; i++)
+            // {
             //    myQ.Enqueue(i);
-            //}
+            // }
 
-            //// printQueue();
+            // Console.WriteLine();
+            // Console.WriteLine("----------------");
+            // printQueue();
+            // Console.WriteLine("----------------");
+            // Console.WriteLine();
 
-            //// Console.WriteLine("--------");
+            // rebuildQueue(ix);
 
-            //rebuildQueue(ix);
+            // Console.WriteLine();
+            // Console.WriteLine("----------------");
+            // printQueue();
+            // Console.WriteLine("----------------");
+            // Console.WriteLine();
 
-            //// printQueue();
 
-            //Console.WriteLine("--------");
-            //Console.WriteLine();
-            //Console.WriteLine("Choose the action:");
-            //Console.WriteLine("1: PickNext");
-            //Console.WriteLine("2: PickPrevious");
-            //Console.Write("_: ");
+            // Console.WriteLine("--------");
+            // Console.WriteLine();
+            // Console.WriteLine("Choose the action:");
+            // Console.WriteLine("1: PickNext");
+            // Console.WriteLine("2: PickPrevious");
+            // Console.Write("_: ");
 
-            //picker = Convert.ToInt32(Console.ReadLine());
+            // picker = Convert.ToInt32(Console.ReadLine());
 
-            //// 1 - вывести наверх
-            //// 2 - вывести вниз
-            //// 3 - завершить прогу
+            // // 1 - вывести наверх
+            // // 2 - вывести вниз
+            // // 3 - завершить прогу
 
-            //while (picker != 3)
-            //{
+            // while (picker != 3)
+            // {
             //    if (picker == 1)
             //    {
             //        Console.WriteLine();
@@ -240,38 +272,43 @@ namespace ArraySelector
             //    Console.Write("_: ");
 
             //    picker = Convert.ToInt32(Console.ReadLine());
-            //}
+            // }
         }
 
         private static void pickNext()
         {
             int el = (int)myQ.Peek();
-            Console.Write("Net: ");
-            Console.WriteLine(ix);
             moveUp(el);
+            Console.Write("[ ");
+            Console.Write(el);
+            Console.Write(" ] - ");
             Console.WriteLine(numbers[el]);
 
             el = (int)myQ.Peek();
             moveUp(el);
+            Console.Write("[ ");
+            Console.Write(el);
+            Console.Write(" ] - ");
             Console.WriteLine(numbers[el]);
 
             el = (int)myQ.Peek();
 
+            Console.Write("[ ");
+            Console.Write(el);
+            Console.Write(" ] - ");
             Console.WriteLine(numbers[el]);
         }
 
         private static void pickPrevious()
         {
+            rebuildQueue(3);
+
             Console.WriteLine();
             Console.WriteLine("----------------");
-
-            Console.Write("Da: ");
-            Console.WriteLine(ix);
-            rebuildQueue(ix);
-            pickNext();
-
+            printQueue();
             Console.WriteLine("----------------");
             Console.WriteLine();
+            // pickNext();
         }
 
         private static void moveUp(int el)
@@ -296,8 +333,22 @@ namespace ArraySelector
         {
             foreach (int el in myQ)
             {
-                Console.WriteLine(el);
+                Console.Write("[ ");
+                Console.Write(el);
+                Console.Write(" ] ");
             }
+            Console.WriteLine();
+        }
+
+        private static void printNumbers()
+        {
+            foreach (int el in numbers)
+            {
+                Console.Write("[ ");
+                Console.Write(el);
+                Console.Write(" ] ");
+            }
+            Console.WriteLine();
         }
     }
 }
