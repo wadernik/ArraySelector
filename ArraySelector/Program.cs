@@ -8,6 +8,10 @@ namespace ArraySelector
     using System.Collections;
     using System.Collections.Generic;
 
+
+    // Credits:
+    // METAINT.COM
+    // https://metanit.com/sharp/algoritm/2.1.php
     public class DoublyNode<T>
     {
         public DoublyNode()
