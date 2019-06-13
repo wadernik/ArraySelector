@@ -4,8 +4,16 @@ using System.Collections.Generic;
 
 namespace ArraySelector
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
     public class DoublyNode<T>
     {
+        public DoublyNode()
+        {
+
+        }
         public DoublyNode(T data)
         {
             Data = data;
@@ -16,13 +24,12 @@ namespace ArraySelector
         public DoublyNode<T> Next { get; set; }
     }
 
-    public class DoublyLinkedList<T> : IEnumerable<T>  // двусвязный список
+    public class DoublyLinkedList<T> : IEnumerable<T>
     {
-        DoublyNode<T> head; // головной/первый элемент
-        DoublyNode<T> tail; // последний/хвостовой элемент
-        int count;  // количество элементов в списке
+        DoublyNode<T> head;
+        DoublyNode<T> tail;
+        int count;
 
-        // добавление элемента
         public void Add(T data)
         {
             DoublyNode<T> node = new DoublyNode<T>(data);
@@ -38,7 +45,7 @@ namespace ArraySelector
             count++;
         }
 
-        public void AddFirst(T data)
+        public void AddFront(T data)
         {
             DoublyNode<T> node = new DoublyNode<T>(data);
             DoublyNode<T> temp = head;
@@ -53,33 +60,40 @@ namespace ArraySelector
 
         public void RemoveFront()
         {
-            DoublyNode<T> current = head;
-
-            if (current.Next != null)
+            if (head.Next != null)
             {
-                current.Next.Previous = null;
+                head.Next.Previous = null;
             }
 
-            head = current.Next;
+            head = head.Next;
             count--;
         }
 
         public void RemoveBack()
         {
-            DoublyNode<T> current = head;
-            
-            tail = current.Previous;
-            current.Previous.Next = current.Next;
-            
+            if (tail.Previous != null)
+            {
+                tail.Previous.Next = null;
+            }
+
+            tail = tail.Previous;
             count--;
         }
 
-        // удаление
+        public DoublyNode<T> PeekFront()
+        {
+            return head;
+        }
+
+        public DoublyNode<T> PeekBack()
+        {
+            return tail;
+        }
+
         public bool Remove(T data)
         {
             DoublyNode<T> current = head;
 
-            // поиск удаляемого узла
             while (current != null)
             {
                 if (current.Data.Equals(data))
@@ -88,29 +102,27 @@ namespace ArraySelector
                 }
                 current = current.Next;
             }
+
             if (current != null)
             {
-                // если узел не последний
                 if (current.Next != null)
                 {
                     current.Next.Previous = current.Previous;
                 }
                 else
                 {
-                    // если последний, переустанавливаем tail
                     tail = current.Previous;
                 }
 
-                // если узел не первый
                 if (current.Previous != null)
                 {
                     current.Previous.Next = current.Next;
                 }
                 else
                 {
-                    // если первый, переустанавливаем head
                     head = current.Next;
                 }
+
                 count--;
                 return true;
             }
@@ -165,189 +177,207 @@ namespace ArraySelector
         }
     }
 
+    public class DLOperator
+    {
+        private static int filesAmount;
+        private static int step;
+
+        private static bool nextNeedToRebuild = false;
+        private static bool prevNeedToRebuild = false;
+
+        private static DoublyLinkedList<int> linkedList = new DoublyLinkedList<int>();
+
+        public DLOperator(int inputArrLengh, int inputStep)
+        {
+            filesAmount = inputArrLengh;
+            step = inputStep;
+
+            for (int i = 0; i < filesAmount; i++)
+            {
+                linkedList.Add(i);
+            }
+        }
+
+        public int[] pickNext()
+        {
+            List<int> elsList = new List<int>();
+            DoublyNode<int> el = new DoublyNode<int>();
+
+            if (nextNeedToRebuild)
+            {
+                for (int i = 0; i < step; i++)
+                {
+                    el = linkedList.PeekFront();
+                    moveUp(el);
+                }
+            }
+
+            prevNeedToRebuild = true;
+            nextNeedToRebuild = false;
+
+            for (int i = 0; i < step; i++)
+            {
+                el = linkedList.PeekFront();
+                moveUp(el);
+                elsList.Add(el.Data);
+            }
+
+            if (step > 1)
+            {
+                el = linkedList.PeekFront();
+                elsList.Add(el.Data);
+            }
+
+            return elsList.ToArray();
+        }
+
+        public int[] pickPrevious()
+        {
+            List<int> elsList = new List<int>();
+            DoublyNode<int> el = new DoublyNode<int>();
+
+            if (prevNeedToRebuild)
+            {
+                for (int i = 0; i < step; i++)
+                {
+                    el = linkedList.PeekBack();
+                    moveDown(el);
+                }
+            }
+
+            prevNeedToRebuild = false;
+            nextNeedToRebuild = true;
+
+            if (step > 1)
+            {
+                el = linkedList.PeekFront();
+                elsList.Add(el.Data);
+            }
+
+            for (int i = 0; i < step; i++)
+            {
+                el = linkedList.PeekBack();
+                moveDown(el);
+                elsList.Add(el.Data);
+            }
+
+            int[] elsArr = elsList.ToArray();
+            Array.Reverse(elsArr);
+
+            return elsArr;
+        }
+
+        private void moveUp(DoublyNode<int> el)
+        {
+            linkedList.RemoveFront();
+            linkedList.Add(el.Data);
+        }
+
+        private void moveDown(DoublyNode<int> el)
+        {
+            linkedList.RemoveBack();
+            linkedList.AddFront(el.Data);
+        }
+
+        public void printList()
+        {
+            Console.WriteLine();
+            Console.WriteLine("--------");
+
+            foreach (var item in linkedList)
+            {
+                Console.Write("[ ");
+                Console.Write(item);
+                Console.Write(" ] ");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("--------");
+            Console.WriteLine();
+        }
+    }
+
     class Program
     {
-        // Начальный индекс
-        public static int ix = 0;
         private static int[] numbers = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        private static Queue myQ = new Queue();
+
+        private static DoublyLinkedList<int> linkedList = new DoublyLinkedList<int>();
 
         static void Main(string[] args)
         {
-            DoublyLinkedList<string> linkedList = new DoublyLinkedList<string>();
+            int picker = 0;
 
-            // добавление элементов
-            linkedList.Add("Bob");
-            linkedList.Add("Bill");
-            linkedList.Add("Tom");
-
-            foreach (var item in linkedList)
+            for (int i = 0; i < numbers.Length; i++)
             {
-                Console.WriteLine(item);
+                linkedList.Add(i);
             }
 
-            linkedList.RemoveFront();
-            linkedList.Add("Bob");
-            linkedList.Add("Vova");
-            linkedList.Add("Boba");
+            DLOperator dlOperator = new DLOperator(numbers.Length, 2);
 
+            dlOperator.printList();
+
+            Console.WriteLine("Choose the action:");
+            Console.WriteLine("1: PickNext");
+            Console.WriteLine("2: PickPrevious");
+            Console.Write("_: ");
+
+            picker = Convert.ToInt32(Console.ReadLine());
+
+            // 1 - вывести наверх
+            // 2 - вывести вниз
+            // 3 - завершить прогу
+
+            while (picker != 3)
+            {
+                if (picker == 1)
+                {
+                    dlOperator.printList();
+
+                    int[] arr = dlOperator.pickNext();
+
+                    Console.Write("Result arr: ");
+                    printArray(arr);
+                    Console.WriteLine();
+
+                    dlOperator.printList();
+                }
+
+                if (picker == 2)
+                {
+                    dlOperator.printList();
+
+                    int[] arr = dlOperator.pickPrevious();
+
+                    Console.Write("Result arr: ");
+                    printArray(arr);
+                    Console.WriteLine();
+
+                    dlOperator.printList();
+                }
+
+                Console.WriteLine("Choose the action:");
+                Console.WriteLine("1: PickNext");
+                Console.WriteLine("2: PickPrevious");
+                Console.Write("_: ");
+
+                picker = Convert.ToInt32(Console.ReadLine());
+            }
+        }
+
+        private static void printArray(int[] arr)
+        {
+            Console.WriteLine();
             Console.WriteLine("--------");
-            Console.WriteLine();
 
-            foreach (var item in linkedList)
-            {
-                Console.WriteLine(item);
-            }
-
-            linkedList.RemoveBack();
-            linkedList.AddFirst("Boba");
-            linkedList.AddFirst("Aasdd");
-
-            Console.WriteLine("--------");
-            Console.WriteLine();
-
-            foreach (var item in linkedList)
-            {
-                Console.WriteLine(item);
-            }
-            
-
-            // int picker = 0;
-
-            // for (int i = 0; i < numbers.Length; i++)
-            // {
-            //    myQ.Enqueue(i);
-            // }
-
-            // Console.WriteLine();
-            // Console.WriteLine("----------------");
-            // printQueue();
-            // Console.WriteLine("----------------");
-            // Console.WriteLine();
-
-            // rebuildQueue(ix);
-
-            // Console.WriteLine();
-            // Console.WriteLine("----------------");
-            // printQueue();
-            // Console.WriteLine("----------------");
-            // Console.WriteLine();
-
-
-            // Console.WriteLine("--------");
-            // Console.WriteLine();
-            // Console.WriteLine("Choose the action:");
-            // Console.WriteLine("1: PickNext");
-            // Console.WriteLine("2: PickPrevious");
-            // Console.Write("_: ");
-
-            // picker = Convert.ToInt32(Console.ReadLine());
-
-            // // 1 - вывести наверх
-            // // 2 - вывести вниз
-            // // 3 - завершить прогу
-
-            // while (picker != 3)
-            // {
-            //    if (picker == 1)
-            //    {
-            //        Console.WriteLine();
-            //        Console.WriteLine("----------------");
-
-            //        ix = (int)myQ.Peek();
-            //        pickNext();
-
-            //        Console.WriteLine("----------------");
-            //        Console.WriteLine();
-            //    }
-
-            //    if (picker == 2)
-            //    {
-            //        pickPrevious();
-            //    }
-
-            //    Console.WriteLine("Choose the action:");
-            //    Console.WriteLine("1: PickNext");
-            //    Console.WriteLine("2: PickPrevious");
-            //    Console.Write("_: ");
-
-            //    picker = Convert.ToInt32(Console.ReadLine());
-            // }
-        }
-
-        private static void pickNext()
-        {
-            int el = (int)myQ.Peek();
-            moveUp(el);
-            Console.Write("[ ");
-            Console.Write(el);
-            Console.Write(" ] - ");
-            Console.WriteLine(numbers[el]);
-
-            el = (int)myQ.Peek();
-            moveUp(el);
-            Console.Write("[ ");
-            Console.Write(el);
-            Console.Write(" ] - ");
-            Console.WriteLine(numbers[el]);
-
-            el = (int)myQ.Peek();
-
-            Console.Write("[ ");
-            Console.Write(el);
-            Console.Write(" ] - ");
-            Console.WriteLine(numbers[el]);
-        }
-
-        private static void pickPrevious()
-        {
-            rebuildQueue(3);
-
-            Console.WriteLine();
-            Console.WriteLine("----------------");
-            printQueue();
-            Console.WriteLine("----------------");
-            Console.WriteLine();
-            // pickNext();
-        }
-
-        private static void moveUp(int el)
-        {
-            myQ.Dequeue();
-            myQ.Enqueue(el);
-        }
-
-        private static void rebuildQueue(int i)
-        {
-            int el = (int)myQ.Peek();
-
-            while (el < i)
-            {
-                myQ.Dequeue();
-                myQ.Enqueue(el);
-                el = (int)myQ.Peek();
-            }
-        }
-
-        private static void printQueue()
-        {
-            foreach (int el in myQ)
+            foreach (var item in arr)
             {
                 Console.Write("[ ");
-                Console.Write(el);
+                Console.Write(item);
                 Console.Write(" ] ");
             }
-            Console.WriteLine();
-        }
 
-        private static void printNumbers()
-        {
-            foreach (int el in numbers)
-            {
-                Console.Write("[ ");
-                Console.Write(el);
-                Console.Write(" ] ");
-            }
+            Console.WriteLine();
+            Console.WriteLine("--------");
             Console.WriteLine();
         }
     }
